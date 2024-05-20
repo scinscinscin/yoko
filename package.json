@@ -1,0 +1,31 @@
+{
+  "name": "@scinorandex/yoko",
+  "version": "0.0.1",
+  "description": "GraphQL schema and resolver mapping using Zod",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "tsx test/index.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/scinscinscin/yoko.git"
+  },
+  "keywords": [
+    "graphql",
+    "zod",
+    "typescript",
+    "type-safety"
+  ],
+  "author": "scinorandex",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/scinscinscin/graphql/issues"
+  },
+  "homepage": "https://github.com/scinscinscin/graphql#readme",
+  "dependencies": {
+    "graphql": "^16.8.1",
+    "ts-pattern": "^5.1.1",
+    "tsx": "^4.10.5",
+    "zod": "^3.23.8"
+  }
+}
