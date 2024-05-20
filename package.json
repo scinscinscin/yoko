@@ -19,9 +19,9 @@
   "author": "scinorandex",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/scinscinscin/graphql/issues"
+    "url": "https://github.com/scinscinscin/yoko/issues"
   },
-  "homepage": "https://github.com/scinscinscin/graphql#readme",
+  "homepage": "https://github.com/scinscinscin/yoko#readme",
   "dependencies": {
     "graphql": "^16.8.1",
     "ts-pattern": "^5.1.1",
