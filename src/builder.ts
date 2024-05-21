@@ -2,12 +2,13 @@ import { z } from "zod";
 import { createConverter } from "./core";
 import { DefineResolver, DefineType } from "./define";
 
-export interface YokoLitterOptions {
+export interface YokoLittner {
   types: { [key: string]: DefineType };
   queries: { [key: string]: DefineResolver };
+  mutations: { [key: string]: DefineResolver };
 }
 
-export function yoko({ types, queries }: YokoLitterOptions) {
+export function yoko({ types, queries, mutations }: YokoLittner) {
   // build Schema
   const schemaFragemnts = [] as string[];
   const converter = createConverter(
@@ -21,6 +22,9 @@ export function yoko({ types, queries }: YokoLitterOptions) {
 
   const querySchemaFragment = converter.processResolverMap("Query", queries);
   schemaFragemnts.push(querySchemaFragment);
+  const mutationSchemaFragment = converter.processResolverMap("Mutation", mutations);
+  schemaFragemnts.push(mutationSchemaFragment);
+
   const schema = schemaFragemnts.join("\n");
 
   function wrapRaw(parent: any, returnedTypeOfParent: z.ZodTypeAny) {
@@ -46,14 +50,16 @@ export function yoko({ types, queries }: YokoLitterOptions) {
 
   // build resolvers
   const rootValue = {};
-  for (const [name, { data: resolverData }] of Object.entries(queries)) {
-    rootValue[name] = async (args, ...rest) => {
-      const validatedArgs = resolverData.args ? await resolverData.args.parseAsync(args) : {};
-      const raw = await resolverData.resolver(validatedArgs);
-      const returned = wrapRaw(raw, resolverData.returns as z.ZodObject<any>);
-      return returned;
-    };
-  }
+  [queries, mutations].forEach((x) => {
+    for (const [name, { data: resolverData }] of Object.entries(x)) {
+      rootValue[name] = async (args, ...rest) => {
+        const validatedArgs = resolverData.args ? await resolverData.args.parseAsync(args) : {};
+        const raw = await resolverData.resolver(validatedArgs);
+        const returned = wrapRaw(raw, resolverData.returns as z.ZodObject<any>);
+        return returned;
+      };
+    }
+  });
 
   return { schema, rootValue };
 }

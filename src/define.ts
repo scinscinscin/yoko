@@ -16,7 +16,7 @@ export function defineType<T extends Zod.AnyZodObject>(
       returns: ReturnType;
       resolver: (
         parent: z.infer<T>,
-        args: Args extends z.ZodObject<any> ? z.infer<Args> : never
+        args: Args extends z.ZodObject<any> ? z.infer<Args> : unknown
       ) => PromiseOrSync<z.infer<ReturnType>>;
     }) => Resolver
   ) => { [key: string]: Resolver }
@@ -29,7 +29,7 @@ export function defineType<T extends Zod.AnyZodObject>(
 export function defineResolver<ReturnType extends Anything, Args extends z.ZodObject<any> | undefined>(data: {
   args: Args;
   returns: ReturnType;
-  resolver: (args: Args extends z.ZodObject<any> ? z.infer<Args> : never) => PromiseOrSync<z.infer<ReturnType>>;
+  resolver: (args: Args extends z.ZodObject<any> ? z.infer<Args> : unknown) => PromiseOrSync<z.infer<ReturnType>>;
 }) {
   return { data };
 }

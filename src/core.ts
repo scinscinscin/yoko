@@ -112,8 +112,8 @@ export function createConverter(entities: { [key: string]: z.ZodObject<any> }) {
     } = definedResolver;
 
     const returnType = convertZodTypeToAstNode(returns as z.ZodObject<any>);
-    const parameters = args != undefined ? convertArguments(args as z.ZodObject<any>) : "";
-    return `  ${resolverName}(${parameters}): ${stringifyAstNode(returnType)}`;
+    const parameters = args != undefined ? `(${convertArguments(args as z.ZodObject<any>)})` : "";
+    return `  ${resolverName}${parameters}: ${stringifyAstNode(returnType)}`;
   }
 
   function processResolverMap(queryName: string, resolvers: { [key: string]: DefineResolver }) {
@@ -123,6 +123,7 @@ export function createConverter(entities: { [key: string]: z.ZodObject<any> }) {
       stringifiedResolvers.push(processResolver(name, definedResolver));
     }
 
+    if (stringifiedResolvers.length == 0) return "";
     const ret = `type ${queryName} {\n${stringifiedResolvers.join("\n")}\n}`;
     return ret;
   }
