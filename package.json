@@ -4,6 +4,7 @@
   "description": "GraphQL schema and resolver mapping using Zod",
   "main": "dist/index.js",
   "scripts": {
+    "build": "tsc",
     "test": "tsx test/index.ts",
     "web": "tsx watch test/web.ts"
   },

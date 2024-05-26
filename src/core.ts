@@ -11,7 +11,7 @@ type ASTNode =
   | { type: "boolean"; nullable: boolean }
   | { type: "fieldResolver"; args?: z.ZodObject<any>; returnType: ASTNode; nullable: boolean };
 
-export function stringifyAstNode(ast: ASTNode) {
+export function stringifyAstNode(ast: ASTNode): string {
   const stringified = match(ast)
     .with({ type: "object" }, (res) => res.name)
     .with({ type: "array" }, (res) => `[${stringifyAstNode(res.insideType)}]`)
@@ -66,6 +66,7 @@ export function createConverter(entities: { [key: string]: z.ZodObject<any> }) {
         else throw new Error("Unknown ZodObject Type");
 
       case "ZodNullable":
+      case "ZodOptional":
         return { ...convertZodTypeToAstNode(zodValidator._def.innerType), nullable: true };
 
       default:

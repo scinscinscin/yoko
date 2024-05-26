@@ -1,21 +1,11 @@
 import { hobbies, relation, users } from "./fakeData";
 import { z } from "zod";
 import { defineResolver, defineType, yoko } from "../src";
+import { HobbyModel, UserModel } from "./models";
 
-const HobbyValidator = z.object({
-  id: z.string(),
-  name: z.string(),
-  description: z.string(),
-});
-
-const UserValidator = z.object({
-  id: z.string(),
-  name: z.string(),
-});
-
-const UserType = defineType(UserValidator, (defineField) => ({
+const UserType = defineType(UserModel, (defineField) => ({
   hobbies: defineField({
-    returns: z.array(HobbyValidator),
+    returns: z.array(HobbyModel),
     args: undefined,
     resolver: (parent) => {
       return relation.filter((r) => r.userId === parent.id).map((r) => hobbies.find((h) => h.id === r.hobbyId)!);
@@ -24,15 +14,15 @@ const UserType = defineType(UserValidator, (defineField) => ({
 
   capitalized: defineField({
     // args: z.object({ foo: z.string().nullable() }),
-    args: undefined,
+    args: z.object({ suffix: z.string().nullable() }),
     returns: z.string(),
-    resolver: (parent, args) => parent.name.toUpperCase(),
+    resolver: (parent, args) => parent.name.toUpperCase() + (args.suffix ?? ""),
   }),
 }));
 
-const HobbyType = defineType(HobbyValidator, (defineField) => ({
+const HobbyType = defineType(HobbyModel, (defineField) => ({
   users: defineField({
-    returns: z.array(UserValidator),
+    returns: z.array(UserModel),
     args: undefined,
     resolver: (parent) => {
       const filtered = relation.filter((r) => r.hobbyId === parent.id);
@@ -43,9 +33,9 @@ const HobbyType = defineType(HobbyValidator, (defineField) => ({
 
 const queries = {
   getUser: defineResolver({
-    returns: UserValidator,
+    returns: UserModel,
     args: z.object({ id: z.string() }),
-    async resolver({ id }) {
+    resolver: async ({ id }) => {
       const user = users.find((user) => user.id === id);
       if (user) return user;
       else throw new Error("User not found");
@@ -53,7 +43,7 @@ const queries = {
   }),
 
   getUsers: defineResolver({
-    returns: z.array(UserValidator),
+    returns: z.array(UserModel),
     args: undefined,
     resolver: () => users,
   }),
@@ -62,7 +52,7 @@ const queries = {
 let maxId = 4;
 const mutations = {
   createUser: defineResolver({
-    returns: UserValidator,
+    returns: UserModel,
     args: z.object({ name: z.string() }),
     async resolver({ name }) {
       const user = { id: (++maxId).toString(), name };
@@ -72,7 +62,7 @@ const mutations = {
   }),
 };
 
-export const { schema, rootValue } = yoko({
+export const { schema, rootValue, schemaString } = yoko({
   types: { User: UserType, Hobby: HobbyType },
   queries,
   mutations,

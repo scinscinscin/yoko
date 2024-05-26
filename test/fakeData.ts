@@ -1,12 +1,12 @@
 import { z } from "zod";
-import { Hobby, User } from "./models";
+import { HobbyModel, UserModel } from "./models";
 
-export const hobbies: z.infer<typeof Hobby>[] = [
+export const hobbies: z.infer<typeof HobbyModel>[] = [
   { id: "1", name: "Reading", description: "I like to read" },
   { id: "2", name: "Running", description: "I like to run" },
 ];
 
-export const users: z.infer<typeof User>[] = [
+export const users: z.infer<typeof UserModel>[] = [
   { id: "1", name: "John Doe" },
   { id: "2", name: "Jane Doe" },
   { id: "3", name: "Mister Doe" },

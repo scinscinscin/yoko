@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { createConverter } from "./core";
 import { DefineResolver, DefineType } from "./define";
+import { buildSchema } from "graphql";
 
 export interface YokoLittner {
   types: { [key: string]: DefineType };
@@ -25,12 +26,12 @@ export function yoko({ types, queries, mutations }: YokoLittner) {
   const mutationSchemaFragment = converter.processResolverMap("Mutation", mutations);
   schemaFragemnts.push(mutationSchemaFragment);
 
-  const schema = schemaFragemnts.join("\n");
+  const schemaString = schemaFragemnts.join("\n");
 
   function wrapRaw(parent: any, returnedTypeOfParent: z.ZodTypeAny) {
     // handle arrays
     if (returnedTypeOfParent._def.typeName === "ZodArray")
-      return parent.map((x) => wrapRaw(x, returnedTypeOfParent._def.type));
+      return parent.map((x: any) => wrapRaw(x, returnedTypeOfParent._def.type));
 
     if (returnedTypeOfParent._def.typeName !== "ZodObject") return parent;
 
@@ -38,8 +39,8 @@ export function yoko({ types, queries, mutations }: YokoLittner) {
     const returned = { ...parent };
 
     for (const [fieldResolverName, fieldResolver] of Object.entries(fieldResolvers)) {
-      returned[fieldResolverName] = async (...args) => {
-        const validatedArgs = fieldResolver.args ? await fieldResolver.args.parseAsync(args) : {};
+      returned[fieldResolverName] = async (...args: any[]) => {
+        const validatedArgs = fieldResolver.args ? await fieldResolver.args.parseAsync(args[0]) : {};
         const bruh = await fieldResolver.resolver(parent, validatedArgs);
         return wrapRaw(bruh, fieldResolver.returns as z.ZodObject<any>);
       };
@@ -49,7 +50,7 @@ export function yoko({ types, queries, mutations }: YokoLittner) {
   }
 
   // build resolvers
-  const rootValue = {};
+  const rootValue = {} as { [key: string]: (...x: any[]) => void };
   [queries, mutations].forEach((x) => {
     for (const [name, { data: resolverData }] of Object.entries(x)) {
       rootValue[name] = async (args, ...rest) => {
@@ -61,5 +62,5 @@ export function yoko({ types, queries, mutations }: YokoLittner) {
     }
   });
 
-  return { schema, rootValue };
+  return { schema: buildSchema(schemaString), schemaString, rootValue };
 }

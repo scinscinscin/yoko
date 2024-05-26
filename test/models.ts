@@ -1,12 +1,12 @@
 import { z } from "zod";
 
-export const Hobby = z.object({
+export const HobbyModel = z.object({
   id: z.string(),
   name: z.string(),
   description: z.string(),
 });
 
-export const User = z.object({
+export const UserModel = z.object({
   id: z.string(),
   name: z.string(),
 });
